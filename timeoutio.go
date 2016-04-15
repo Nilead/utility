@@ -10,25 +10,25 @@ import (
 // TODO: Maybe this should go into its own package if it's considered resuable
 // by things other than just TCPMsgRing. For now, I'll just privatize it all.
 
-// timeoutReader is a bufio.Reader that reads in chunks and will return a
+// TimeoutReader is a bufio.Reader that reads in chunks and will return a
 // timeout error if the chunk is not read in the Timeout time.
 // Timeout can be zero to disable the timeout feature.
 // TODO: Add other bufio functions
-type timeoutReader struct {
+type TimeoutReader struct {
 	Timeout time.Duration
 	reader  *bufio.Reader
 	conn    net.Conn
 }
 
-func newTimeoutReader(conn net.Conn, chunkSize int, timeout time.Duration) *timeoutReader {
-	return &timeoutReader{
+func NewTimeoutReader(conn net.Conn, chunkSize int, timeout time.Duration) *TimeoutReader {
+	return &TimeoutReader{
 		Timeout: timeout,
 		reader:  bufio.NewReaderSize(conn, chunkSize),
 		conn:    conn,
 	}
 }
 
-func (r *timeoutReader) Read(p []byte) (n int, err error) {
+func (r *TimeoutReader) Read(p []byte) (n int, err error) {
 	deadline := false
 	if r.Timeout != 0 && r.reader.Buffered() == 0 {
 		// Buffer is empty, so we will read from the network
@@ -43,7 +43,7 @@ func (r *timeoutReader) Read(p []byte) (n int, err error) {
 	return count, err
 }
 
-func (r *timeoutReader) ReadByte() (c byte, err error) {
+func (r *TimeoutReader) ReadByte() (c byte, err error) {
 	deadline := false
 	if r.Timeout != 0 && r.reader.Buffered() == 0 {
 		// Buffer is empty, so we will read from the network
@@ -58,23 +58,38 @@ func (r *timeoutReader) ReadByte() (c byte, err error) {
 	return b, err
 }
 
-// timeoutWriter is a bufio.Writer that reads in chunks and will return a
+func (r *TimeoutReader) ReadString(delim byte) (line string, err error) {
+	deadline := false
+	if r.Timeout != 0 && r.reader.Buffered() == 0 {
+		// Buffer is empty, so we will read from the network
+		timeout := time.Now().Add(r.Timeout)
+		r.conn.SetReadDeadline(timeout)
+		deadline = true
+	}
+	b, err := r.reader.ReadString(delim)
+	if deadline {
+		r.conn.SetReadDeadline(time.Time{})
+	}
+	return b, err
+}
+
+// TimeoutWriter is a bufio.Writer that reads in chunks and will return a
 // timeout error if the chunk is not read in the Timeout time.
-type timeoutWriter struct {
+type TimeoutWriter struct {
 	Timeout time.Duration
 	writer  *bufio.Writer
 	conn    net.Conn
 }
 
-func newTimeoutWriter(conn net.Conn, chunkSize int, timeout time.Duration) *timeoutWriter {
-	return &timeoutWriter{
+func NewTimeoutWriter(conn net.Conn, chunkSize int, timeout time.Duration) *TimeoutWriter {
+	return &TimeoutWriter{
 		Timeout: timeout,
 		writer:  bufio.NewWriterSize(conn, chunkSize),
 		conn:    conn,
 	}
 }
 
-func (w *timeoutWriter) Write(p []byte) (n int, err error) {
+func (w *TimeoutWriter) Write(p []byte) (n int, err error) {
 	deadline := false
 	if w.Timeout != 0 && len(p) > w.writer.Available() {
 		// Write will flush(), so make sure we wrap in a timeout
@@ -89,7 +104,7 @@ func (w *timeoutWriter) Write(p []byte) (n int, err error) {
 	return count, err
 }
 
-func (w *timeoutWriter) WriteByte(c byte) error {
+func (w *TimeoutWriter) WriteByte(c byte) error {
 	deadline := false
 	if w.Timeout != 0 && w.writer.Available() <= 0 {
 		// Write will flush(), so make sure we wrap in a timeout
@@ -104,7 +119,7 @@ func (w *timeoutWriter) WriteByte(c byte) error {
 	return err
 }
 
-func (w *timeoutWriter) Flush() error {
+func (w *TimeoutWriter) Flush() error {
 	if w.Timeout != 0 {
 		timeout := time.Now().Add(w.Timeout)
 		w.conn.SetWriteDeadline(timeout)
