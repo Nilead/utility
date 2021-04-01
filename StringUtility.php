@@ -29,7 +29,7 @@ class StringUtility
         return preg_replace_callback(
             '/(^|[a-z])([A-Z])/',
             function ($match) {
-                return strtolower(strlen($match[1]) ? "$match[1]_$match[2]" : "$match[2]");
+                return strtolower(\strlen($match[1]) ? "$match[1]_$match[2]" : "$match[2]");
             },
             $string
         );
@@ -113,6 +113,18 @@ class StringUtility
     public static function stripNonAlphaNumeric($string)
     {
         return preg_replace('/[^a-z0-9]/i', '', $string);
+    }
+
+    /**
+     * A string to underscore.
+     *
+     * @param string $id The string to underscore
+     *
+     * @return string The underscored string
+     */
+    public static function underscore($id)
+    {
+        return strtolower(preg_replace(['/([A-Z]+)([A-Z][a-z])/', '/([a-z\d])([A-Z])/'], ['\\1_\\2', '\\1_\\2'], str_replace('_', '.', $id)));
     }
 
     /**
@@ -204,7 +216,7 @@ class StringUtility
     {
         if (false !== ($pos = strpos($subject, $search))) {
             $beforeStr = substr($subject, 0, $pos);
-            $afterStr = substr($subject, $pos + strlen($search));
+            $afterStr = substr($subject, $pos + \strlen($search));
 
             return $beforeStr . $replace . $afterStr;
         }
@@ -253,7 +265,7 @@ class StringUtility
         $length = \strlen($chars) - 1;
 
         for ($i = 0; $i < $size; $i++) {
-            $string .= $chars{mt_rand(0, $length)};
+            $string .= $chars[random_int(0, $length)];
         }
 
         return $string;
@@ -454,29 +466,5 @@ class StringUtility
         }
 
         return $plural;
-    }
-
-    /**
-     * Camelizes a string.
-     *
-     * @param string $id A string to camelize
-     *
-     * @return string The camelized string
-     */
-    public static function camelize($id)
-    {
-        return strtr(ucwords(strtr($id, ['_' => ' ', '.' => '_ ', '\\' => '_ '])), [' ' => '']);
-    }
-
-    /**
-     * A string to underscore.
-     *
-     * @param string $id The string to underscore
-     *
-     * @return string The underscored string
-     */
-    public static function underscore($id)
-    {
-        return strtolower(preg_replace(['/([A-Z]+)([A-Z][a-z])/', '/([a-z\d])([A-Z])/'], ['\\1_\\2', '\\1_\\2'], str_replace('_', '.', $id)));
     }
 }
