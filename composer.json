@@ -1,0 +1,20 @@
+{
+    "name": "nilead/utility",
+    "type": "nilead-library",
+    "authors": [
+        { "name": "Nilead Team", "homepage": "http://nilead.com" }
+    ],
+    "license": "MIT",
+    "require": {
+        "php": ">=7.0",
+        "symfony/inflector": "~4.4"
+    },
+    "prefer-stable": true,
+    "minimum-stability": "dev",
+    "repositories": [
+        { "type": "composer", "url": "http://satis.nilead.com/core" }
+    ],
+    "autoload": {
+        "psr-4": { "Nilead\\Utility\\": "" }
+    }
+}
