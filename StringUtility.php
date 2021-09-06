@@ -327,7 +327,7 @@ class StringUtility
      */
     public static function removeDuplicatedLines($lines, $ignoreCase = false, $newLine = PHP_EOL)
     {
-        if (!is_array($lines)) {
+        if (!\is_array($lines)) {
             $lines = explode($newLine, $lines);
         }
 
@@ -336,10 +336,10 @@ class StringUtility
         $duplicates = 0;
 
         // Go trough all lines of the given file
-        for ($line = 0, $lineMax = \count($lines); $line < $lineMax; $line++) {
+        foreach ($lines as $lineValue) {
 
             // Trim whitespace for the current line
-            $currentLine = trim($lines[$line]);
+            $currentLine = trim($lineValue);
 
             // Skip empty lines
             if ('' === $currentLine) {
@@ -405,9 +405,7 @@ class StringUtility
     {
         $class = preg_replace("/[^[:alnum:][:space:]]/u", ' ', $class);
         $class = strtolower(preg_replace('~(?<=\\w)([A-Z])~', '-$1', $class));
-        $class = lcfirst(str_replace(' ', '-', $class));
-
-        return $class;
+        return lcfirst(str_replace(' ', '-', $class));
     }
 
     /**
