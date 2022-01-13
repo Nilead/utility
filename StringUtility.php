@@ -212,9 +212,10 @@ class StringUtility
      *
      * @return string
      */
-    public static function strReplaceFirst($search, $replace, $subject)
+    public static function strReplaceFirst(string $search, string $replace, string $subject)
     {
-        if (false !== ($pos = strpos($subject, $search))) {
+        $pos = strpos($subject, $search);
+        if (false !== $pos) {
             $beforeStr = substr($subject, 0, $pos);
             $afterStr = substr($subject, $pos + \strlen($search));
 
