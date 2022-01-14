@@ -2,7 +2,7 @@
 
 namespace Nilead\Utility;
 
-use Symfony\Component\Inflector\Inflector;
+use Symfony\Component\String\Inflector\EnglishInflector as Inflector;
 
 /**
  * Class StringUtility
