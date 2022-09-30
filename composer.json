@@ -7,7 +7,7 @@
     "license": "MIT",
     "require": {
         "php": ">=7.0",
-        "symfony/inflector": "~6.0"
+        "symfony/string": "~6.0"
     },
     "prefer-stable": true,
     "minimum-stability": "dev",

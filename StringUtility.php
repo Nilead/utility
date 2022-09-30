@@ -2,7 +2,7 @@
 
 namespace Nilead\Utility;
 
-use Symfony\Component\Inflector\Inflector;
+use Symfony\Component\String\Inflector\EnglishInflector;
 
 /**
  * Class StringUtility
@@ -11,6 +11,7 @@ use Symfony\Component\Inflector\Inflector;
  */
 class StringUtility
 {
+    protected static ?EnglishInflector $inflector = null;
 
     /**
      * Convert to string that is delimited by "_" from camel case
@@ -435,9 +436,13 @@ class StringUtility
      * @param string $plural
      * @return array|string
      */
-    public static function singularize(string $plural) :string
+    public static function singularize(string $plural): string
     {
-        $singular = Inflector::singularize($plural);
+        if (null === self::$inflector) {
+            self::$inflector = new EnglishInflector();
+        }
+
+        $singular = self::$inflector->singularize($plural);
 
         if (\is_array($singular)) {
             $singular = end($singular);
@@ -448,11 +453,15 @@ class StringUtility
 
     /**
      * @param string $singular
-     * @return array|string
+     * @return string
      */
-    public static function pluralize(string $singular) :string
+    public static function pluralize(string $singular): string
     {
-        $plural = Inflector::pluralize($singular);
+        if (null === self::$inflector) {
+            self::$inflector = new EnglishInflector();
+        }
+
+        $plural = self::$inflector->pluralize($singular);
 
         if (\is_array($plural)) {
             $plural = end($plural);
